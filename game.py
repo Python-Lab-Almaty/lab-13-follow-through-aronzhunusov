@@ -156,6 +156,7 @@ dynamic_obstacles = []
 # ----------------------------
 steps = 0
 penalties = 0
+lives = 3
 
 # ----------------------------
 # 🟢 СКОРОСТЬ
@@ -271,7 +272,7 @@ def draw_all():
     score_drawer.goto(0, -HEIGHT//2 + 40)
     score = steps - penalties
     score_drawer.clear()
-    score_drawer.write(f"Steps: {steps} | Penalties: {penalties} | Score: {score}",
+    score_drawer.write(f"Steps: {steps} | Penalties: {penalties} | Lives: {lives} | Score: {score}",
                        align="center", font=("Arial", 16, "bold"))
     
     screen.update()
@@ -290,16 +291,19 @@ def check_collision():
     global penalties
     for ox, oy, (w, h) in impassable_obstacles:
         if rect_collision(hero.xcor(), hero.ycor(), ox, oy, w, h, hero_radius=15):
-            penalties += 10
-            print(f"⚠️ ШТРАФ! (-10 баллов)")
-            hero.goto(hero.xcor() - vx*3, hero.ycor() - vy*3)
-            return "penalty"
+             penalties += 10
+             lives -= 1
+             print(f"⚠️ ШТРАФ! (-10 баллов) | ❤️ Жизни: {lives}")
+             hero.goto(hero.xcor() - vx*3, hero.ycor() - vy*3)
+             return "penalty"
     
     for obs in dynamic_obstacles:
         x, y, w, h, is_falling, speed, final_y = obs
         if rect_collision(hero.xcor(), hero.ycor(), x, y, w, h, hero_radius=15):
             return "game_over"
     
+        if lives <= 0:
+            return "game_over"   
     return "ok"
 
 # ----------------------------
